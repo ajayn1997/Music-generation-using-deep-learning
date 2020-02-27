@@ -23,7 +23,21 @@ class TrainLogger(object):
         s = '{},{},{}'.format(self.epochs, loss, acc)
         with open(self.file, 'a') as f:
             f.write(s)
-    
+
+
+def read_batches(T, vocab_size):
+    length = T.shape[0] # 129,665
+    batch_chars = int(length / BATCH_SIZE)
+
+    for start in range(0, batch_chars - SEQ_LENGTH, SEQ_LENGTH):
+        X = np.zeros(BATCH_SIZE, SEQ_LENGTH)
+        Y = np.zeros((BATCH_SIZE, SEQ_LENGTH, vocab_size))
+        for batch_idx in range(0, BATCH_SIZE):
+            for i in range(0, SEQ_LENGTH):
+                X[batch_idx, i] = T[batch_chars* batch_idx + start + i]
+                Y[batch_idx, i, T[batch_chars* batch_idx + start + i +1]] = 1
+            yield X,Y
+
 
 def train(text, epochs=100, save_freq=10):
 
